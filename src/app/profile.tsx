@@ -1,370 +1,198 @@
 // src/app/profile.tsx
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import {
-    AccessibilitySettings,
-    UserProfile,
-    useSettings,
-} from "../presentation/store/SettingsContext";
+import { AccessibilityPanel } from "../presentation/components/ui/AccessibilityPanel";
+import { Button } from "../presentation/components/ui/Button";
+import { Input } from "../presentation/components/ui/Input";
+import { OnboardingTour } from "../presentation/components/ui/OnboardingTour";
+import { useAccessibility } from "../presentation/store/AccessibilityContext";
+import { useUserProfile } from "../presentation/store/UserProfileContext";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { profile, settings, updateProfile, updateSettings } = useSettings();
+  const { settings } = useAccessibility();
+  const { profile, updateProfile } = useUserProfile();
+  const [isHelpVisible, setIsHelpVisible] = useState(false);
 
-  // Estados locais para edição (evita gravar no disco a cada letra digitada)
-  const [localProfile, setLocalProfile] = useState<UserProfile>(profile);
-  const [localSettings, setLocalSettings] =
-    useState<AccessibilitySettings>(settings);
+  const fScale =
+    settings.fontSize === "extra-large"
+      ? 1.4
+      : settings.fontSize === "large"
+        ? 1.2
+        : 1;
+  const sScale = settings.spacing === "comfortable" ? 1.5 : 1;
+  const isHighContrast = settings.highContrast;
 
-  // Sincroniza caso os dados demorem um pouco a carregar
-  useEffect(() => {
-    setLocalProfile(profile);
-    setLocalSettings(settings);
-  }, [profile, settings]);
-
-  const handleSave = async () => {
-    await updateProfile(localProfile);
-    await updateSettings(localSettings);
-    Alert.alert(
-      "Sucesso",
-      "As suas preferências foram guardadas com sucesso!",
-      [{ text: "OK", onPress: () => router.back() }],
-    );
+  const theme = {
+    bg: isHighContrast ? "#121212" : "#F4F6F8",
+    card: isHighContrast ? "#1E1E1E" : "#FFFFFF",
+    textMain: isHighContrast ? "#FFFFFF" : "#1A1A1A",
+    textSub: isHighContrast ? "#BBBBBB" : "#666666",
+    primary: isHighContrast ? "#FFD700" : "#0056D2",
+    border: isHighContrast ? "#333333" : "#E0E0E0",
   };
 
-  // Componente auxiliar para os botões de seleção (Tabs)
-  const OptionSelector = ({
-    options,
-    selectedValue,
-    onSelect,
-  }: {
-    options: { label: string; value: string }[];
-    selectedValue: string;
-    onSelect: (val: any) => void;
-  }) => (
-    <View style={styles.selectorContainer}>
-      {options.map((opt) => {
-        const isActive = selectedValue === opt.value;
-        return (
-          <TouchableOpacity
-            key={opt.value}
-            style={[
-              styles.selectorButton,
-              isActive && styles.selectorButtonActive,
-            ]}
-            onPress={() => onSelect(opt.value)}
-          >
-            <Text
-              style={[
-                styles.selectorText,
-                isActive && styles.selectorTextActive,
-              ]}
-            >
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
+  const handleCallEmergency = () => {
+    if (!profile.emergencyContact) {
+      Alert.alert(
+        "Aviso",
+        "Por favor, guarde primeiro um número de emergência acima.",
+      );
+      return;
+    }
+    Linking.openURL(`tel:${profile.emergencyContact}`);
+  };
+
+  // Extrai o primeiro nome para uma saudação mais próxima
+  const firstName = profile.preferredName
+    ? profile.preferredName.trim().split(" ")[0]
+    : "";
+  const greetingTitle = firstName
+    ? `O seu Espaço, ${firstName}`
+    : "O seu Espaço";
+
+  const profileSteps = [
+    {
+      title: greetingTitle,
+      text: "Aqui pode dizer-nos o seu nome e ajustar a aplicação para ficar exatamente como gosta de usar.",
+    },
+    {
+      title: "Acessibilidade",
+      text: "Ative o alto contraste para cores mais fortes ou aumente as letras nos botões A, A+ e A++.",
+    },
+    {
+      title: "Segurança Ativa",
+      text: "Com a proteção contra cliques ligada, vamos sempre perguntar-lhe duas vezes antes de apagar qualquer coisa importante.",
+    },
+  ];
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: theme.card,
+            borderBottomColor: theme.border,
+            paddingBottom: 16 * sScale,
+          },
+        ]}
+      >
         <TouchableOpacity
           onPress={() => router.back()}
-          style={styles.headerBackButton}
+          style={styles.backButton}
         >
-          <Text style={styles.headerBackButtonText}>← Voltar</Text>
+          <Text
+            style={{
+              fontSize: 16 * fScale,
+              color: theme.primary,
+              fontWeight: "bold",
+            }}
+          >
+            ← Voltar
+          </Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          Meu Perfil ⚙️
+        <Text
+          style={{
+            flex: 1,
+            fontSize: 24 * fScale,
+            fontWeight: "bold",
+            color: theme.textMain,
+          }}
+        >
+          Perfil e Ajustes
         </Text>
+
+        {!settings.advancedMode && (
+          <TouchableOpacity
+            onPress={() => setIsHelpVisible(true)}
+            style={{ padding: 8 }}
+          >
+            <Text style={{ fontSize: 24 * fScale }}>❓</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* --- SECÇÃO: DADOS PESSOAIS --- */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dados Pessoais</Text>
+      <OnboardingTour
+        visible={isHelpVisible}
+        onComplete={() => setIsHelpVisible(false)}
+        steps={profileSteps}
+      />
 
-          <Text style={styles.label}>Como gosta de ser chamado?</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: Sr. João, Avó Maria..."
-            value={localProfile.preferredName}
-            onChangeText={(text) =>
-              setLocalProfile({ ...localProfile, preferredName: text })
-            }
+      <ScrollView contentContainerStyle={{ padding: 20 * sScale }}>
+        {/* Painel de Acessibilidade Renderizado Limpamente */}
+        <AccessibilityPanel />
+
+        {/* Dados Pessoais e SOS */}
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: theme.card, borderColor: theme.border },
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { fontSize: 22 * fScale, color: theme.textMain },
+            ]}
+          >
+            Dados Pessoais
+          </Text>
+
+          <Input
+            label="Como prefere ser chamado(a)?"
+            placeholder="O seu nome..."
+            value={profile.preferredName}
+            onChangeText={(text) => updateProfile({ preferredName: text })}
           />
 
-          <Text style={styles.label}>Sua Idade</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: 72"
+          <Input
+            label="A sua Idade"
+            placeholder="Ex: 75"
+            value={profile.age}
+            onChangeText={(text) => updateProfile({ age: text })}
             keyboardType="numeric"
-            value={localProfile.age}
-            onChangeText={(text) =>
-              setLocalProfile({ ...localProfile, age: text })
-            }
           />
 
-          <Text style={styles.label}>Telefone de Emergência</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: 912 345 678 (Filho/a)"
+          <Input
+            label="Telefone de Emergência"
+            placeholder="Ex: 912345678"
+            value={profile.emergencyContact}
+            onChangeText={(text) => updateProfile({ emergencyContact: text })}
             keyboardType="phone-pad"
-            value={localProfile.emergencyContact}
-            onChangeText={(text) =>
-              setLocalProfile({ ...localProfile, emergencyContact: text })
-            }
+          />
+
+          <Button
+            title="Ligar para Emergência (SOS)"
+            variant="danger"
+            onPress={handleCallEmergency}
+            style={{ marginTop: 16 }}
           />
         </View>
-
-        {/* --- SECÇÃO: ACESSIBILIDADE --- */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Acessibilidade e Conforto</Text>
-
-          <Text style={styles.label}>Modo de Uso</Text>
-          <OptionSelector
-            options={[
-              { label: "Acessível (Simples)", value: "accessible" },
-              { label: "Avançado", value: "advanced" },
-            ]}
-            selectedValue={localSettings.usageMode}
-            onSelect={(val) =>
-              setLocalSettings({ ...localSettings, usageMode: val })
-            }
-          />
-
-          <Text style={styles.label}>Tamanho das Letras</Text>
-          <OptionSelector
-            options={[
-              { label: "Normal", value: "normal" },
-              { label: "Grande", value: "large" },
-              { label: "Gigante", value: "extra-large" },
-            ]}
-            selectedValue={localSettings.fontSize}
-            onSelect={(val) =>
-              setLocalSettings({ ...localSettings, fontSize: val })
-            }
-          />
-
-          <Text style={styles.label}>Espaço entre os elementos</Text>
-          <OptionSelector
-            options={[
-              { label: "Normal", value: "normal" },
-              { label: "Confortável", value: "comfortable" },
-            ]}
-            selectedValue={localSettings.spacing}
-            onSelect={(val) =>
-              setLocalSettings({ ...localSettings, spacing: val })
-            }
-          />
-
-          {/* Opções de Ligar/Desligar (Switches) */}
-          <View style={styles.switchRow}>
-            <View style={styles.switchTextContainer}>
-              <Text style={styles.switchTitle}>Alto Contraste</Text>
-              <Text style={styles.switchSubtitle}>
-                Cores mais fortes para leitura fácil
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#D1D5DB", true: "#0056D2" }}
-              value={localSettings.highContrast}
-              onValueChange={(val) =>
-                setLocalSettings({ ...localSettings, highContrast: val })
-              }
-            />
-          </View>
-
-          <View style={styles.switchRow}>
-            <View style={styles.switchTextContainer}>
-              <Text style={styles.switchTitle}>Reduzir Movimentos</Text>
-              <Text style={styles.switchSubtitle}>
-                Desliga animações que causam tonturas
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#D1D5DB", true: "#0056D2" }}
-              value={localSettings.reduceMotion}
-              onValueChange={(val) =>
-                setLocalSettings({ ...localSettings, reduceMotion: val })
-              }
-            />
-          </View>
-
-          <View style={styles.switchRow}>
-            <View style={styles.switchTextContainer}>
-              <Text style={styles.switchTitle}>Segurança contra Cliques</Text>
-              <Text style={styles.switchSubtitle}>
-                Evita apagar coisas por engano duplo
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#D1D5DB", true: "#0056D2" }}
-              value={localSettings.clickSecurity}
-              onValueChange={(val) =>
-                setLocalSettings({ ...localSettings, clickSecurity: val })
-              }
-            />
-          </View>
-
-          <View style={styles.switchRow}>
-            <View style={styles.switchTextContainer}>
-              <Text style={styles.switchTitle}>Elogios Pessoais</Text>
-              <Text style={styles.switchSubtitle}>
-                Receba mensagens de motivação
-              </Text>
-            </View>
-            <Switch
-              trackColor={{ false: "#D1D5DB", true: "#0056D2" }}
-              value={localSettings.enableCompliments}
-              onValueChange={(val) =>
-                setLocalSettings({ ...localSettings, enableCompliments: val })
-              }
-            />
-          </View>
-        </View>
-
-        {/* Botão de Guardar Fixo no Fim */}
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Guardar Alterações</Text>
-        </TouchableOpacity>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F6F8" },
+  container: { flex: 1 },
   header: {
     paddingTop: 60,
-    paddingBottom: 16,
     paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
     flexDirection: "row",
     alignItems: "center",
   },
-  headerBackButton: {
-    padding: 8,
-    marginRight: 8,
-    backgroundColor: "#E8F0FE",
-    borderRadius: 8,
-  },
-  headerBackButtonText: { fontSize: 16, color: "#0056D2", fontWeight: "bold" },
-  headerTitle: { flex: 1, fontSize: 24, fontWeight: "bold", color: "#1A1A1A" },
-
-  scrollContent: { padding: 20, paddingBottom: 60 },
-
-  section: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#0056D2",
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-    paddingBottom: 10,
-  },
-
-  label: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-    marginTop: 12,
-  },
-  input: {
-    backgroundColor: "#F9FAFB",
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 18,
-    color: "#1A1A1A",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-
-  selectorContainer: {
-    flexDirection: "row",
-    backgroundColor: "#F9FAFB",
-    borderRadius: 12,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    marginBottom: 12,
-  },
-  selectorButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  selectorButtonActive: {
-    backgroundColor: "#0056D2",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  selectorText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#555",
-    textAlign: "center",
-  },
-  selectorTextActive: { color: "#FFFFFF" },
-
-  switchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  switchTextContainer: { flex: 1, paddingRight: 16 },
-  switchTitle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-  switchSubtitle: { fontSize: 14, color: "#666", marginTop: 4 },
-
-  saveButton: {
-    backgroundColor: "#137333",
-    paddingVertical: 18,
-    borderRadius: 16,
-    alignItems: "center",
-    shadowColor: "#137333",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  saveButtonText: { color: "#FFFFFF", fontSize: 20, fontWeight: "bold" },
+  backButton: { padding: 8, marginRight: 8 },
+  card: { padding: 24, borderRadius: 16, borderWidth: 1, marginBottom: 24 },
+  sectionTitle: { fontWeight: "bold", marginBottom: 20 },
 });

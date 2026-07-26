@@ -1,12 +1,12 @@
 import { ReactNode } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Modal as RNModal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Modal as RNModal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 
@@ -43,7 +43,7 @@ export const Modal = ({ visible, onClose, title, children }: ModalProps) => {
     >
       <KeyboardAvoidingView
         style={styles.overlay}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <View
           style={[
@@ -69,7 +69,6 @@ export const Modal = ({ visible, onClose, title, children }: ModalProps) => {
               </Text>
             </TouchableOpacity>
           </View>
-
           {children}
         </View>
       </KeyboardAvoidingView>

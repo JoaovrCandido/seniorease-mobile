@@ -1,46 +1,46 @@
-// src/presentation/store/AccessibilityContext.tsx
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
-
-const ACCESSIBILITY_STORAGE_KEY = "@SeniorEase:accessibility";
+// Caso já tenha o AsyncStorage configurado para as preferências, vamos preparar a estrutura
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface AccessibilitySettings {
-  usageMode: "accessible" | "advanced";
+  userName: string;
   fontSize: "normal" | "large" | "extra-large";
   highContrast: boolean;
   spacing: "normal" | "comfortable";
   reduceMotion: boolean;
-  clickSecurity: boolean;
-  enableCompliments: boolean;
+  clickProtection: boolean;
+  encouragement: boolean;
+  advancedMode: boolean; // <-- NOVO: Modo Avançado
 }
 
 interface AccessibilityContextData {
   settings: AccessibilitySettings;
-  updateSettings: (
-    newSettings: Partial<AccessibilitySettings>,
-  ) => Promise<void>;
-  isLoading: boolean;
+  updateSettings: (newSettings: Partial<AccessibilitySettings>) => void;
+  isLoadingSettings: boolean;
 }
 
 const defaultSettings: AccessibilitySettings = {
-  usageMode: "accessible",
-  fontSize: "large",
+  userName: "",
+  fontSize: "extra-large",
   highContrast: false,
   spacing: "comfortable",
-  reduceMotion: true,
-  clickSecurity: true,
-  enableCompliments: true,
+  reduceMotion: false,
+  clickProtection: true,
+  encouragement: true,
+  advancedMode: false,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextData>(
   {} as AccessibilityContextData,
 );
+
+const SETTINGS_KEY = "@seniorease_settings";
 
 export const AccessibilityProvider = ({
   children,
@@ -49,60 +49,54 @@ export const AccessibilityProvider = ({
 }) => {
   const [settings, setSettings] =
     useState<AccessibilitySettings>(defaultSettings);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
+  // Carrega as preferências guardadas assim que a app abre
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const storedSettings = await AsyncStorage.getItem(
-          ACCESSIBILITY_STORAGE_KEY,
-        );
+        const storedSettings = await AsyncStorage.getItem(SETTINGS_KEY);
         if (storedSettings) {
-          setSettings(JSON.parse(storedSettings) as AccessibilitySettings);
+          setSettings({ ...defaultSettings, ...JSON.parse(storedSettings) });
         }
       } catch (error) {
-        console.error(
-          "Erro ao carregar configurações de acessibilidade:",
-          error,
-        );
+        console.error("Erro ao carregar configurações:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingSettings(false);
       }
     };
-
     loadSettings();
   }, []);
 
+  // Atualiza o estado e guarda fisicamente no dispositivo
   const updateSettings = async (
     newSettings: Partial<AccessibilitySettings>,
   ) => {
-    const updated = { ...settings, ...newSettings };
+    let updated = { ...settings, ...newSettings };
+
+    // Se o utilizador alternou o Modo Avançado, ajustamos a fonte por default
+    if (
+      "advancedMode" in newSettings &&
+      newSettings.advancedMode !== settings.advancedMode
+    ) {
+      updated.fontSize = newSettings.advancedMode ? "large" : "extra-large";
+    }
+
     setSettings(updated);
     try {
-      await AsyncStorage.setItem(
-        ACCESSIBILITY_STORAGE_KEY,
-        JSON.stringify(updated),
-      );
+      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
     } catch (error) {
-      console.error("Erro ao salvar configurações de acessibilidade:", error);
+      console.error("Erro ao guardar configurações:", error);
     }
   };
 
   return (
     <AccessibilityContext.Provider
-      value={{ settings, updateSettings, isLoading }}
+      value={{ settings, updateSettings, isLoadingSettings }}
     >
       {children}
     </AccessibilityContext.Provider>
   );
 };
 
-export const useAccessibility = () => {
-  const context = useContext(AccessibilityContext);
-  if (!context) {
-    throw new Error(
-      "useAccessibility deve ser usado dentro de um AccessibilityProvider",
-    );
-  }
-  return context;
-};
+export const useAccessibility = () => useContext(AccessibilityContext);

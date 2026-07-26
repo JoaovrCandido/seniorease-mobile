@@ -1,22 +1,18 @@
-// src/infrastructure/services/TextToSpeechService.ts
 import * as Speech from "expo-speech";
 
 export class TextToSpeechService {
-  public speak(text: string, onEnd?: () => void): void {
-    // Cancela qualquer fala anterior para não encavalar as vozes
+  speak(text: string): void {
+    // Para qualquer fala anterior antes de iniciar uma nova
     this.cancel();
 
     Speech.speak(text, {
       language: "pt-BR",
-      rate: 0.9, // Velocidade um pouco mais lenta, ideal para a terceira idade
+      rate: 0.9, // Velocidade otimizada para idosos
       pitch: 1.0,
-      onDone: () => {
-        if (onEnd) onEnd();
-      },
     });
   }
 
-  public cancel(): void {
+  cancel(): void {
     Speech.stop();
   }
 }

@@ -1,24 +1,57 @@
-// src/application/useCases/AddBlockUseCase.ts
-import { ContentBlock } from "../../domain/entities/Block";
+import { BlockType, ContentBlock } from "../../domain/entities/Block";
 import { INotebookRepository } from "../../domain/repositories/INotebookRepository";
 
-// Usamos Omit para criar o bloco sem precisar passar um ID (o Use Case gera o ID)
-export type CreateBlockDTO = Omit<ContentBlock, "id">;
+const generateUUID = (): string => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
 export class AddBlockUseCase {
-  constructor(private readonly notebookRepository: INotebookRepository) {}
+  constructor(private notebookRepository: INotebookRepository) {}
 
-  async execute(notebookId: string, blockData: CreateBlockDTO): Promise<void> {
+  async execute(
+    notebookId: string,
+    content: string,
+    type: BlockType,
+    extra?: { url?: string; date?: Date },
+  ): Promise<void> {
     const notebook = await this.notebookRepository.getById(notebookId);
+    if (!notebook) throw new Error("Caderno não encontrado");
 
-    if (!notebook) {
-      throw new Error(`Caderno com ID ${notebookId} não encontrado.`);
+    const baseBlock = {
+      id: generateUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDeleted: false,
+    };
+
+    let newBlock: ContentBlock;
+
+    if (type === "task") {
+      newBlock = { ...baseBlock, type: "task", content, isCompleted: false };
+    } else if (type === "meeting") {
+      newBlock = {
+        ...baseBlock,
+        type: "meeting",
+        title: content,
+        meetingUrl: extra?.url || "",
+        date: extra?.date ? extra.date.toISOString() : new Date().toISOString(),
+      };
+    } else if (type === "reminder") {
+      newBlock = {
+        ...baseBlock,
+        type: "reminder",
+        content,
+        date: extra?.date ? extra.date.toISOString() : new Date().toISOString(),
+      };
+    } else if (type === "heading") {
+      newBlock = { ...baseBlock, type: "heading", content };
+    } else {
+      newBlock = { ...baseBlock, type: "paragraph", content };
     }
-
-    const newBlock: ContentBlock = {
-      ...blockData,
-      id: crypto.randomUUID(),
-    } as ContentBlock; // O Type Assertion aqui é seguro pois o DTO garante a estrutura
 
     notebook.blocks.push(newBlock);
     notebook.updatedAt = new Date();

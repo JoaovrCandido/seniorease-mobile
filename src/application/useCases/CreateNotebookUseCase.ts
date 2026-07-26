@@ -1,24 +1,33 @@
-// src/application/useCases/CreateNotebookUseCase.ts
+import { Notebook } from "../../domain/entities/Notebook";
 import { INotebookRepository } from "../../domain/repositories/INotebookRepository";
-import { Notebook, NotebookType } from "../../domain/entities/Notebook";
+
+const generateUUID = (): string => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
 export class CreateNotebookUseCase {
-  constructor(private readonly notebookRepository: INotebookRepository) {}
+  constructor(private notebookRepository: INotebookRepository) {}
 
   async execute(
     title: string,
-    description: string = "",
-    type: NotebookType = "notebook", // <-- NOVO: Padrão é caderno
-  ): Promise<void> {
+    description: string,
+    icon: string,
+  ): Promise<Notebook> {
     const newNotebook: Notebook = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       title,
       description,
-      type, // <-- NOVO
+      icon,
       blocks: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     await this.notebookRepository.save(newNotebook);
+    return newNotebook;
   }
 }

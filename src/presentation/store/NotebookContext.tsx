@@ -1,4 +1,3 @@
-// src/presentation/store/NotebookContext.tsx
 import {
   createContext,
   ReactNode,
@@ -10,8 +9,14 @@ import { AddBlockUseCase } from "../../application/useCases/AddBlockUseCase";
 import { CreateNotebookUseCase } from "../../application/useCases/CreateNotebookUseCase";
 import { DeleteBlockUseCase } from "../../application/useCases/DeleteBlockUseCase";
 import { DeleteNotebookUseCase } from "../../application/useCases/DeleteNotebookUseCase";
+import { HardDeleteBlockUseCase } from "../../application/useCases/HardDeleteBlockUseCase";
+import { HardDeleteNotebookUseCase } from "../../application/useCases/HardDeleteNotebookUseCase";
+import { ReorderBlocksUseCase } from "../../application/useCases/ReorderBlocksUseCase";
+import { RestoreBlockUseCase } from "../../application/useCases/RestoreBlockUseCase";
+import { RestoreNotebookUseCase } from "../../application/useCases/RestoreNotebookUseCase";
 import { ToggleTaskUseCase } from "../../application/useCases/ToggleTaskUseCase";
 import { UpdateBlockUseCase } from "../../application/useCases/UpdateBlockUseCase";
+import { UpdateNotebookUseCase } from "../../application/useCases/UpdateNotebookUseCase";
 import { Notebook } from "../../domain/entities/Notebook";
 import { AsyncStorageNotebookRepository } from "../../infrastructure/repositories/AsyncStorageNotebookRepository";
 
@@ -19,8 +24,15 @@ const repository = new AsyncStorageNotebookRepository();
 
 const createNotebookUseCase = new CreateNotebookUseCase(repository);
 const deleteNotebookUseCase = new DeleteNotebookUseCase(repository);
+const restoreNotebookUseCase = new RestoreNotebookUseCase(repository);
+const hardDeleteNotebookUseCase = new HardDeleteNotebookUseCase(repository);
+const updateNotebookUseCase = new UpdateNotebookUseCase(repository);
+
 const addBlockUseCase = new AddBlockUseCase(repository);
 const deleteBlockUseCase = new DeleteBlockUseCase(repository);
+const restoreBlockUseCase = new RestoreBlockUseCase(repository);
+const hardDeleteBlockUseCase = new HardDeleteBlockUseCase(repository);
+const reorderBlocksUseCase = new ReorderBlocksUseCase(repository);
 const updateBlockUseCase = new UpdateBlockUseCase(repository);
 const toggleTaskUseCase = new ToggleTaskUseCase(repository);
 
@@ -33,9 +45,17 @@ interface NotebookContextData {
   createNotebook: (
     title: string,
     description: string,
-    type: "notebook" | "todo",
-  ) => Promise<void>;
+    icon: string,
+  ) => Promise<Notebook>;
   deleteNotebook: (id: string) => Promise<void>;
+  restoreNotebook: (id: string) => Promise<void>;
+  hardDeleteNotebook: (id: string) => Promise<void>;
+  updateNotebook: (
+    id: string,
+    title: string,
+    description: string,
+    icon: string,
+  ) => Promise<void>;
   addBlock: (
     notebookId: string,
     content: string,
@@ -43,6 +63,9 @@ interface NotebookContextData {
     extra?: { date?: Date; url?: string },
   ) => Promise<void>;
   deleteBlock: (notebookId: string, blockId: string) => Promise<void>;
+  restoreBlock: (notebookId: string, blockId: string) => Promise<void>;
+  hardDeleteBlock: (notebookId: string, blockId: string) => Promise<void>;
+  reorderBlocks: (notebookId: string, newOrderIds: string[]) => Promise<void>;
   updateBlock: (
     notebookId: string,
     blockId: string,
@@ -65,9 +88,7 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const data = await repository.getAll();
-      setNotebooks(
-        data.filter((n) => !n.isDeleted && typeof n.title === "string"),
-      );
+      setNotebooks(data.filter((n) => typeof n.title === "string"));
     } catch (error) {
       console.error("Erro ao carregar cadernos:", error);
     } finally {
@@ -82,14 +103,39 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
   const createNotebook = async (
     title: string,
     description: string,
-    type: "notebook" | "todo",
+    icon: string,
   ) => {
-    await createNotebookUseCase.execute(title, description, type);
+    const newNotebook = await createNotebookUseCase.execute(
+      title,
+      description,
+      icon,
+    );
+    setNotebooks((prev) => [...prev, newNotebook]);
+    return newNotebook;
+  };
+
+  const updateNotebook = async (
+    id: string,
+    title: string,
+    description: string,
+    icon: string,
+  ) => {
+    await updateNotebookUseCase.execute(id, title, description, icon);
     await loadNotebooks();
   };
 
   const deleteNotebook = async (id: string) => {
     await deleteNotebookUseCase.execute(id);
+    await loadNotebooks();
+  };
+
+  const restoreNotebook = async (id: string) => {
+    await restoreNotebookUseCase.execute(id);
+    await loadNotebooks();
+  };
+
+  const hardDeleteNotebook = async (id: string) => {
+    await hardDeleteNotebookUseCase.execute(id);
     await loadNotebooks();
   };
 
@@ -99,34 +145,25 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
     type: BlockType = "paragraph",
     extra?: { date?: Date; url?: string },
   ) => {
-    let blockData: Record<string, unknown> = { type: "paragraph", content };
-
-    if (type === "task")
-      blockData = { type: "task", title: content, isCompleted: false };
-    if (type === "reminder")
-      blockData = {
-        type: "reminder",
-        title: content,
-        date: extra?.date || new Date(),
-        isCompleted: false,
-      };
-    if (type === "meeting")
-      blockData = {
-        type: "meeting",
-        title: content,
-        date: extra?.date || new Date(),
-        url: extra?.url || "",
-      };
-
-    await addBlockUseCase.execute(
-      notebookId,
-      blockData as unknown as Parameters<typeof addBlockUseCase.execute>[1],
-    );
+    await addBlockUseCase.execute(notebookId, content, type, {
+      url: extra?.url,
+      date: extra?.date,
+    });
     await loadNotebooks();
   };
 
   const deleteBlock = async (notebookId: string, blockId: string) => {
     await deleteBlockUseCase.execute(notebookId, blockId);
+    await loadNotebooks();
+  };
+
+  const restoreBlock = async (notebookId: string, blockId: string) => {
+    await restoreBlockUseCase.execute(notebookId, blockId);
+    await loadNotebooks();
+  };
+
+  const hardDeleteBlock = async (notebookId: string, blockId: string) => {
+    await hardDeleteBlockUseCase.execute(notebookId, blockId);
     await loadNotebooks();
   };
 
@@ -137,19 +174,16 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
     type: BlockType = "paragraph",
     extra?: { date?: Date; url?: string },
   ) => {
-    let updateData: Record<string, unknown> = { content };
-
-    if (type === "task") updateData = { title: content };
-    if (type === "reminder") updateData = { title: content, date: extra?.date };
-    if (type === "meeting")
-      updateData = { title: content, date: extra?.date, url: extra?.url };
-
-    await updateBlockUseCase.execute(
-      notebookId,
-      blockId,
-      updateData as unknown as Parameters<typeof updateBlockUseCase.execute>[2],
-    );
+    await updateBlockUseCase.execute(notebookId, blockId, content, type, {
+      url: extra?.url,
+      date: extra?.date,
+    });
     await loadNotebooks();
+  };
+
+  const reorderBlocks = async (notebookId: string, newOrderIds: string[]) => {
+    await reorderBlocksUseCase.execute(notebookId, newOrderIds);
+    await loadNotebooks(); // Recarrega a lista para mostrar a nova ordem
   };
 
   const toggleTask = async (notebookId: string, taskId: string) => {
@@ -164,9 +198,15 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         loadNotebooks,
         createNotebook,
-        deleteNotebook,
+        updateNotebook,
+        deleteNotebook, // <-- Adicionado aqui
+        restoreNotebook,
+        hardDeleteNotebook,
         addBlock,
         deleteBlock,
+        restoreBlock,
+        hardDeleteBlock,
+        reorderBlocks,
         updateBlock,
         toggleTask,
       }}
@@ -178,10 +218,9 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
 
 export const useNotebooks = () => {
   const context = useContext(NotebookContext);
-  if (!context) {
+  if (!context)
     throw new Error(
       "useNotebooks deve ser usado dentro de um NotebookProvider",
     );
-  }
   return context;
 };

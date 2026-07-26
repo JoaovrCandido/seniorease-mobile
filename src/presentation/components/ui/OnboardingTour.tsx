@@ -1,93 +1,129 @@
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+// src/presentation/components/ui/OnboardingTour.tsx
+import { useEffect, useState } from "react";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 import { Button } from "./Button";
-import { Modal } from "./Modal";
+
+export interface TourStep {
+  title: string;
+  text: string;
+}
 
 interface OnboardingTourProps {
   visible: boolean;
   onComplete: () => void;
+  steps: TourStep[];
 }
-
-const STEPS = [
-  {
-    title: "Bem-vindo ao SeniorEase!",
-    text: "Criámos este espaço para ser o seu caderno digital. Simples, seguro e fácil de ler.",
-  },
-  {
-    title: "Crie Cadernos",
-    text: 'Toque no botão "+" no ecrã inicial para criar separadores para as suas receitas, saúde ou ideias.',
-  },
-  {
-    title: "Use a sua Voz",
-    text: "Não gosta de escrever? Dentro de cada caderno, pode usar o microfone para ditar as suas notas.",
-  },
-  {
-    title: "Personalize",
-    text: "No separador de Perfil, pode aumentar ainda mais a letra ou ativar o Alto Contraste.",
-  },
-];
 
 export const OnboardingTour = ({
   visible,
   onComplete,
+  steps,
 }: OnboardingTourProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
   const { settings } = useAccessibility();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (visible) setCurrentStep(0);
+  }, [visible]);
+
+  if (!visible || !steps || steps.length === 0) return null;
+
+  const step = steps[currentStep];
+  const isLast = currentStep === steps.length - 1;
+
   const fScale =
     settings.fontSize === "extra-large"
       ? 1.4
       : settings.fontSize === "large"
         ? 1.2
         : 1;
+  const sScale = settings.spacing === "comfortable" ? 1.5 : 1;
+  const isHighContrast = settings.highContrast;
 
-  const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      onComplete();
-    }
+  const theme = {
+    bg: "rgba(0, 0, 0, 0.8)",
+    card: isHighContrast ? "#1E1E1E" : "#FFFFFF",
+    textMain: isHighContrast ? "#FFFFFF" : "#1A1A1A",
+    textSub: isHighContrast ? "#BBBBBB" : "#666666",
   };
 
-  const step = STEPS[currentStep];
+  const handleNext = () => {
+    if (isLast) onComplete();
+    else setCurrentStep((prev) => prev + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 0) setCurrentStep((prev) => prev - 1);
+  };
 
   return (
     <Modal
       visible={visible}
-      onClose={onComplete}
-      title={`Dica ${currentStep + 1} de ${STEPS.length}`}
+      transparent
+      animationType="fade"
+      onRequestClose={onComplete}
     >
-      <View style={styles.container}>
-        <Text
+      <View style={[styles.overlay, { backgroundColor: theme.bg }]}>
+        <View
           style={[
-            styles.title,
-            {
+            styles.card,
+            { backgroundColor: theme.card, padding: 24 * sScale },
+          ]}
+        >
+          <Text
+            style={{
               fontSize: 24 * fScale,
-              color: settings.highContrast ? "#FFD700" : "#0056D2",
-            },
-          ]}
-        >
-          {step.title}
-        </Text>
-        <Text
-          style={[
-            styles.text,
-            {
+              fontWeight: "bold",
+              color: theme.textMain,
+              marginBottom: 12 * sScale,
+            }}
+          >
+            {step.title}
+          </Text>
+          <Text
+            style={{
               fontSize: 18 * fScale,
-              color: settings.highContrast ? "#FFFFFF" : "#1A1A1A",
-            },
-          ]}
-        >
-          {step.text}
-        </Text>
+              color: theme.textSub,
+              marginBottom: 24 * sScale,
+              lineHeight: 26 * fScale,
+            }}
+          >
+            {step.text}
+          </Text>
 
-        <View style={styles.footer}>
-          <Button
-            title={
-              currentStep === STEPS.length - 1 ? "Começar a usar!" : "Próximo →"
-            }
-            onPress={handleNext}
-          />
+          {/* LAYOUT CORRIGIDO: Texto em cima, botões em baixo dividindo o espaço */}
+          <View style={styles.footer}>
+            <Text
+              style={{
+                fontSize: 16 * fScale,
+                color: theme.textSub,
+                fontWeight: "bold",
+                marginBottom: 16 * sScale,
+                textAlign: "center",
+              }}
+            >
+              Dica {currentStep + 1} de {steps.length}
+            </Text>
+
+            <View style={styles.actions}>
+              {currentStep > 0 && (
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Button
+                    title="Voltar"
+                    variant="secondary"
+                    onPress={handlePrev}
+                  />
+                </View>
+              )}
+              <View style={{ flex: 1 }}>
+                <Button
+                  title={isLast ? "Entendi!" : "Próximo"}
+                  onPress={handleNext}
+                />
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
@@ -95,8 +131,17 @@ export const OnboardingTour = ({
 };
 
 const styles = StyleSheet.create({
-  container: { paddingVertical: 10 },
-  title: { fontWeight: "bold", marginBottom: 16, textAlign: "center" },
-  text: { lineHeight: 28, textAlign: "center", marginBottom: 32 },
-  footer: { alignItems: "center" },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  card: { width: "100%", borderRadius: 16, elevation: 5 },
+  footer: { flexDirection: "column" },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
 });

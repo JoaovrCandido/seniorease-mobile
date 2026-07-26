@@ -21,10 +21,6 @@ export const AccessibilityPanel = () => {
     primaryText: isHighContrast ? "#000000" : "#FFFFFF",
   };
 
-  const handleFontSizeChange = (size: "normal" | "large" | "extra-large") => {
-    updateSettings({ fontSize: size });
-  };
-
   return (
     <View
       style={[
@@ -35,10 +31,9 @@ export const AccessibilityPanel = () => {
       <Text
         style={[styles.title, { color: theme.textMain, fontSize: 22 * fScale }]}
       >
-        Ajustes Visuais
+        Ajustes Visuais e de Segurança
       </Text>
 
-      {/* Alto Contraste */}
       <View style={[styles.row, { borderBottomColor: theme.border }]}>
         <View style={{ flex: 1 }}>
           <Text
@@ -60,7 +55,6 @@ export const AccessibilityPanel = () => {
         />
       </View>
 
-      {/* Espaçamento Confortável */}
       <View style={[styles.row, { borderBottomColor: theme.border }]}>
         <View style={{ flex: 1 }}>
           <Text
@@ -84,7 +78,70 @@ export const AccessibilityPanel = () => {
         />
       </View>
 
-      {/* Tamanho da Letra */}
+      <View style={[styles.row, { borderBottomColor: theme.border }]}>
+        <View style={{ flex: 1 }}>
+          <Text
+            style={[
+              styles.label,
+              { color: theme.textMain, fontSize: 18 * fScale },
+            ]}
+          >
+            Segurança contra Cliques
+          </Text>
+          <Text style={{ color: theme.textSub, fontSize: 14 * fScale }}>
+            Confirmação extra antes de apagar itens.
+          </Text>
+        </View>
+        <Switch
+          value={settings.clickProtection}
+          onValueChange={(val) => updateSettings({ clickProtection: val })}
+          trackColor={{ false: "#767577", true: theme.primary }}
+        />
+      </View>
+
+      <View style={[styles.row, { borderBottomColor: theme.border }]}>
+        <View style={{ flex: 1 }}>
+          <Text
+            style={[
+              styles.label,
+              { color: theme.textMain, fontSize: 18 * fScale },
+            ]}
+          >
+            Mensagens de Incentivo
+          </Text>
+          <Text style={{ color: theme.textSub, fontSize: 14 * fScale }}>
+            Receber elogios ao concluir tarefas.
+          </Text>
+        </View>
+        <Switch
+          value={settings.encouragement}
+          onValueChange={(val) => updateSettings({ encouragement: val })}
+          trackColor={{ false: "#767577", true: theme.primary }}
+        />
+      </View>
+
+      <View style={[styles.row, { borderBottomColor: theme.border }]}>
+        <View style={{ flex: 1 }}>
+          <Text
+            style={[
+              styles.label,
+              { color: theme.textMain, fontSize: 18 * fScale },
+            ]}
+          >
+            Modo Avançado
+          </Text>
+          <Text style={{ color: theme.textSub, fontSize: 14 * fScale }}>
+            Mostra detalhes técnicos (datas precisas, IDs de cadernos) e
+            desativa simplificações.
+          </Text>
+        </View>
+        <Switch
+          value={settings.advancedMode}
+          onValueChange={(val) => updateSettings({ advancedMode: val })}
+          trackColor={{ false: "#767577", true: theme.primary }}
+        />
+      </View>
+
       <View style={styles.fontRow}>
         <Text
           style={[
@@ -108,7 +165,7 @@ export const AccessibilityPanel = () => {
                     borderColor: theme.primary,
                   },
                 ]}
-                onPress={() => handleFontSizeChange(size)}
+                onPress={() => updateSettings({ fontSize: size })}
               >
                 <Text
                   style={{
