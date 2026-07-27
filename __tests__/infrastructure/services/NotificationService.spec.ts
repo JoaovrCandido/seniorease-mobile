@@ -1,28 +1,20 @@
-import * as Notifications from "expo-notifications";
+import { Alert } from "react-native";
 import { NotificationService } from "../../../src/infrastructure/services/NotificationService";
 
-jest.mock("expo-notifications", () => ({
-  scheduleNotificationAsync: jest.fn(),
-  setNotificationHandler: jest.fn(),
-}));
+jest.useFakeTimers();
 
 describe("NotificationService", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  it("deve simular uma notificação chamando o Alert.alert", async () => {
+    const alertSpy = jest.spyOn(Alert, "alert");
 
-  it("deve agendar a notificação corretamente com o título e corpo fornecidos", async () => {
-    await NotificationService.notify(
-      "Hora do Remédio",
-      "Tomar o comprimido da pressão.",
-    );
+    await NotificationService.notify("Lembrete", "Tomar água");
 
-    expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledWith({
-      content: {
-        title: "Hora do Remédio",
-        body: "Tomar o comprimido da pressão.",
-      },
-      trigger: null,
-    });
+    jest.advanceTimersByTime(500);
+
+    expect(alertSpy).toHaveBeenCalledWith("🔔 Lembrete", "Tomar água", [
+      { text: "OK", style: "default" },
+    ]);
+
+    alertSpy.mockRestore();
   });
 });
