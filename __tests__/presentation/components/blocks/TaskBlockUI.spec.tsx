@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 import { TaskBlockUI } from "../../../../src/presentation/components/blocks/TaskBlockUI";
 
 jest.mock("../../../../src/presentation/store/AccessibilityContext", () => ({
@@ -17,7 +17,7 @@ describe("TaskBlockUI", () => {
   };
 
   it("deve exibir o texto da tarefa", () => {
-    const { getByText } = render(
+    render(
       <TaskBlockUI
         block={mockTask}
         onToggle={jest.fn()}
@@ -25,6 +25,6 @@ describe("TaskBlockUI", () => {
         onDelete={jest.fn()}
       />,
     );
-    expect(getByText("Ir à farmácia")).toBeTruthy();
+    expect(screen.getByText("Ir à farmácia")).toBeTruthy();
   });
 });

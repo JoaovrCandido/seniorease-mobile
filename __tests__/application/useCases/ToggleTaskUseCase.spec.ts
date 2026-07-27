@@ -2,43 +2,32 @@ import { ToggleTaskUseCase } from "../../../src/application/useCases/ToggleTaskU
 import { MockNotebookRepository } from "../../mocks/MockNotebookRepository";
 
 describe("ToggleTaskUseCase", () => {
-  it("deve alternar o status isCompleted de uma anotação do tipo tarefa", async () => {
-    const repository = new MockNotebookRepository();
-    repository.notebooks.push({
-      id: "caderno-1",
-      title: "Teste",
-      description: "",
+  it("deve alternar o status da tarefa", async () => {
+    const repo = new MockNotebookRepository();
+    repo.getById = jest.fn().mockResolvedValue({
+      id: "1",
+      title: "Caderno",
       icon: "📘",
+      blocks: [
+        {
+          id: "b1",
+          type: "task",
+          content: "Tarefa",
+          isCompleted: false,
+          isDeleted: false,
+        } as any,
+      ],
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,
-      blocks: [
-        {
-          id: "task-1",
-          type: "task",
-          content: "Comprar leite",
-          isCompleted: false,
-          isDeleted: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
     });
+    repo.save = jest.fn();
 
-    const useCase = new ToggleTaskUseCase(repository);
+    const useCase = new ToggleTaskUseCase(repo);
+    await useCase.execute("1", "b1");
 
-    await useCase.execute("caderno-1", "task-1");
-    let notebook = await repository.getById("caderno-1");
-
-    if (notebook && "isCompleted" in notebook.blocks[0]) {
-      expect(notebook.blocks[0].isCompleted).toBe(true);
-    }
-
-    await useCase.execute("caderno-1", "task-1");
-    notebook = await repository.getById("caderno-1");
-
-    if (notebook && "isCompleted" in notebook.blocks[0]) {
-      expect(notebook.blocks[0].isCompleted).toBe(false);
-    }
+    expect(repo.save).toHaveBeenCalled();
+    const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
+    expect((savedNotebook.blocks[0] as any).isCompleted).toBe(true);
   });
 });

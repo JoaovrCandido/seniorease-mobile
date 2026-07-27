@@ -2,42 +2,28 @@ import { ReorderBlocksUseCase } from "../../../src/application/useCases/ReorderB
 import { MockNotebookRepository } from "../../mocks/MockNotebookRepository";
 
 describe("ReorderBlocksUseCase", () => {
-  it("deve reordenar os blocos com base numa matriz de IDs", async () => {
-    const repository = new MockNotebookRepository();
-    repository.notebooks.push({
-      id: "caderno-1",
-      title: "Teste",
-      description: "",
+  it("deve reordenar os blocos", async () => {
+    const repo = new MockNotebookRepository();
+    repo.getById = jest.fn().mockResolvedValue({
+      id: "1",
+      title: "Caderno",
       icon: "📘",
+      blocks: [
+        { id: "b1", type: "paragraph", content: "1", isDeleted: false } as any,
+        { id: "b2", type: "paragraph", content: "2", isDeleted: false } as any,
+      ],
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,
-      blocks: [
-        {
-          id: "bloco-1",
-          type: "paragraph",
-          content: "Primeiro",
-          isDeleted: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: "bloco-2",
-          type: "paragraph",
-          content: "Segundo",
-          isDeleted: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
     });
+    repo.save = jest.fn();
 
-    const useCase = new ReorderBlocksUseCase(repository);
+    const useCase = new ReorderBlocksUseCase(repo);
+    await useCase.execute("1", ["b2", "b1"]);
 
-    await useCase.execute("caderno-1", ["bloco-2", "bloco-1"]);
-
-    const notebook = await repository.getById("caderno-1");
-    expect(notebook?.blocks[0].id).toBe("bloco-2");
-    expect(notebook?.blocks[1].id).toBe("bloco-1");
+    expect(repo.save).toHaveBeenCalled();
+    const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
+    expect(savedNotebook.blocks[0].id).toBe("b2");
+    expect(savedNotebook.blocks[1].id).toBe("b1");
   });
 });

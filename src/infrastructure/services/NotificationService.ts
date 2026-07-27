@@ -13,6 +13,8 @@ try {
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true, // <-- Adicione esta propriedade
+        shouldShowList: true,
       }),
     });
   }

@@ -2,32 +2,31 @@ import { RestoreBlockUseCase } from "../../../src/application/useCases/RestoreBl
 import { MockNotebookRepository } from "../../mocks/MockNotebookRepository";
 
 describe("RestoreBlockUseCase", () => {
-  it("deve restaurar uma anotação da lixeira mudando isDeleted para false", async () => {
-    const repository = new MockNotebookRepository();
-    repository.notebooks.push({
-      id: "caderno-1",
-      title: "Teste",
-      description: "",
+  it("deve restaurar um bloco apagado", async () => {
+    const repo = new MockNotebookRepository();
+    repo.getById = jest.fn().mockResolvedValue({
+      id: "1",
+      title: "Caderno",
       icon: "📘",
+      blocks: [
+        {
+          id: "b1",
+          type: "paragraph",
+          content: "Texto",
+          isDeleted: true,
+        } as any,
+      ],
       createdAt: new Date(),
       updatedAt: new Date(),
       isDeleted: false,
-      blocks: [
-        {
-          id: "bloco-1",
-          type: "paragraph",
-          content: "Texto apagado",
-          isDeleted: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
     });
+    repo.save = jest.fn();
 
-    const useCase = new RestoreBlockUseCase(repository);
-    await useCase.execute("caderno-1", "bloco-1");
+    const useCase = new RestoreBlockUseCase(repo);
+    await useCase.execute("1", "b1");
 
-    const notebook = await repository.getById("caderno-1");
-    expect(notebook?.blocks[0].isDeleted).toBe(false);
+    expect(repo.save).toHaveBeenCalled();
+    const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
+    expect(savedNotebook.blocks[0].isDeleted).toBe(false);
   });
 });

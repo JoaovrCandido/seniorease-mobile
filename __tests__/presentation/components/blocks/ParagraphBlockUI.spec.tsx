@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
 import { ParagraphBlockUI } from "../../../../src/presentation/components/blocks/ParagraphBlockUI";
 
 jest.mock("../../../../src/presentation/store/AccessibilityContext", () => ({
@@ -16,13 +16,13 @@ describe("ParagraphBlockUI", () => {
   };
 
   it("deve renderizar o conteúdo do texto corretamente", () => {
-    const { getByText } = render(
+    render(
       <ParagraphBlockUI
         block={mockBlock}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />,
     );
-    expect(getByText("Texto de teste")).toBeTruthy();
+    expect(screen.getByText("Texto de teste")).toBeTruthy();
   });
 });

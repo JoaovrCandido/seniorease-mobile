@@ -16,21 +16,27 @@ export class UpdateBlockUseCase {
       const blockIndex = notebook.blocks.findIndex((b) => b.id === blockId);
 
       if (blockIndex !== -1) {
-        // Atualiza as propriedades base
-        notebook.blocks[blockIndex].content = newContent;
-        notebook.blocks[blockIndex].type = newType;
-
-        // Atualiza as propriedades extra de forma segura (Type Assertion)
-        const blockAsRecord = notebook.blocks[blockIndex] as Record<
+        // Utilizamos um 'double cast' para evitar erros de sobreposição de tipos do TypeScript
+        const blockAsRecord = notebook.blocks[blockIndex] as unknown as Record<
           string,
           unknown
         >;
+
+        // Tratamento seguro: Reuniões utilizam 'title', os restantes blocos utilizam 'content'
+        if (newType === "meeting") {
+          blockAsRecord.title = newContent;
+        } else {
+          blockAsRecord.content = newContent;
+        }
+
+        blockAsRecord.type = newType;
 
         if (extra?.date) {
           blockAsRecord.date = extra.date;
         }
         if (extra?.url) {
-          blockAsRecord.url = extra.url;
+          blockAsRecord.meetingUrl = extra.url; // Propriedade correta para a reunião
+          blockAsRecord.url = extra.url; // Fallback
         }
 
         notebook.updatedAt = new Date();

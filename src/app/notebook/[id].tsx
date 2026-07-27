@@ -149,7 +149,6 @@ export default function NotebookScreen() {
     if (editingBlockId) {
       await updateBlock(id, editingBlockId, newContent, blockType, extra);
 
-      // NOVO: Elogio ao editar
       const msg = settings.encouragement
         ? PraiseService.getRandomPraise("update", profile.preferredName)
         : "Anotação atualizada!";
@@ -157,7 +156,6 @@ export default function NotebookScreen() {
     } else {
       await addBlock(id, newContent, blockType, extra);
 
-      // NOVO: Elogio dinâmico baseado no tipo de bloco criado
       if (settings.encouragement) {
         showToast(
           PraiseService.getRandomPraise(blockType, profile.preferredName),
@@ -259,12 +257,15 @@ export default function NotebookScreen() {
       );
     };
 
+    // A conversão 'as unknown as ...' resolve o erro TS2352 garantindo compatibilidade das Props
     const BlockContent = () => {
       switch (block.type) {
         case "task":
           return (
             <TaskBlockUI
-              block={block as Parameters<typeof TaskBlockUI>[0]["block"]}
+              block={
+                block as unknown as Parameters<typeof TaskBlockUI>[0]["block"]
+              }
               onToggle={toggleStatus}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -273,7 +274,11 @@ export default function NotebookScreen() {
         case "reminder":
           return (
             <ReminderBlockUI
-              block={block as Parameters<typeof ReminderBlockUI>[0]["block"]}
+              block={
+                block as unknown as Parameters<
+                  typeof ReminderBlockUI
+                >[0]["block"]
+              }
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -281,7 +286,11 @@ export default function NotebookScreen() {
         case "meeting":
           return (
             <MeetingBlockUI
-              block={block as Parameters<typeof MeetingBlockUI>[0]["block"]}
+              block={
+                block as unknown as Parameters<
+                  typeof MeetingBlockUI
+                >[0]["block"]
+              }
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -289,7 +298,11 @@ export default function NotebookScreen() {
         default:
           return (
             <ParagraphBlockUI
-              block={block as Parameters<typeof ParagraphBlockUI>[0]["block"]}
+              block={
+                block as unknown as Parameters<
+                  typeof ParagraphBlockUI
+                >[0]["block"]
+              }
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -359,7 +372,6 @@ export default function NotebookScreen() {
     );
     setIsNotebookSettingsVisible(false);
 
-    // NOVO: Elogio ao atualizar o caderno
     const msg = settings.encouragement
       ? PraiseService.getRandomPraise("update", profile.preferredName)
       : "Caderno atualizado!";

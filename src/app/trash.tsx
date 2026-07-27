@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { PraiseService } from "../infrastructure/services/PraiseService";
 import { Button } from "../presentation/components/ui/Button";
 import { OnboardingTour } from "../presentation/components/ui/OnboardingTour";
 import { useAccessibility } from "../presentation/store/AccessibilityContext";
@@ -100,7 +101,7 @@ export default function TrashScreen() {
             id: b.id,
             type: "block" as const,
             icon: getBlockIcon(b.type),
-            title: getSafeText(b.content),
+            title: getSafeText("content" in b ? b.content : b.title),
             subtitle: `Anotação de: ${n.title}`,
             notebookId: n.id,
           })),

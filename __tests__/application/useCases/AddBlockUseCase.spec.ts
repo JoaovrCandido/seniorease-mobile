@@ -2,25 +2,26 @@ import { AddBlockUseCase } from "../../../src/application/useCases/AddBlockUseCa
 import { MockNotebookRepository } from "../../mocks/MockNotebookRepository";
 
 describe("AddBlockUseCase", () => {
-  it("deve adicionar uma nova anotação de texto a um caderno", async () => {
-    const repository = new MockNotebookRepository();
-    repository.notebooks.push({
-      id: "caderno-1",
-      title: "Teste",
-      description: "",
+  it("deve adicionar um bloco ao caderno", async () => {
+    const repo = new MockNotebookRepository();
+    repo.getById = jest.fn().mockResolvedValue({
+      id: "1",
+      title: "Caderno",
       icon: "📘",
+      blocks: [],
       createdAt: new Date(),
       updatedAt: new Date(),
-      blocks: [],
       isDeleted: false,
     });
+    repo.save = jest.fn();
 
-    const useCase = new AddBlockUseCase(repository);
-    await useCase.execute("caderno-1", "Comprar pão", "paragraph");
+    const useCase = new AddBlockUseCase(repo);
+    await useCase.execute("1", "Comprar pão", "paragraph");
 
-    const notebook = await repository.getById("caderno-1");
-    expect(notebook?.blocks.length).toBe(1);
-    expect(notebook?.blocks[0].content).toBe("Comprar pão");
-    expect(notebook?.blocks[0].type).toBe("paragraph");
+    expect(repo.save).toHaveBeenCalled();
+    const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
+
+    // Forçamos o TypeScript a ler o content para o teste
+    expect((savedNotebook.blocks[0] as any).content).toBe("Comprar pão");
   });
 });

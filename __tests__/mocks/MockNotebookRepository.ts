@@ -1,5 +1,5 @@
-import { Notebook } from "../../../src/domain/entities/Notebook";
-import { INotebookRepository } from "../../../src/domain/repositories/INotebookRepository";
+import { Notebook } from "../../src/domain/entities/Notebook";
+import { INotebookRepository } from "../../src/domain/repositories/INotebookRepository";
 
 export class MockNotebookRepository implements INotebookRepository {
   public notebooks: Notebook[] = [];

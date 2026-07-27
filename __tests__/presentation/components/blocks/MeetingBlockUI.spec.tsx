@@ -1,9 +1,12 @@
-import { render } from "@testing-library/react-native";
+import { render, screen } from "@testing-library/react-native";
+import { Linking } from "react-native";
 import { MeetingBlockUI } from "../../../../src/presentation/components/blocks/MeetingBlockUI";
 
 jest.mock("../../../../src/presentation/store/AccessibilityContext", () => ({
   useAccessibility: () => ({ settings: { fontSize: "large" } }),
 }));
+
+jest.spyOn(Linking, "openURL").mockResolvedValue(true as never);
 
 describe("MeetingBlockUI", () => {
   const mockMeeting = {
@@ -11,20 +14,21 @@ describe("MeetingBlockUI", () => {
     type: "meeting" as const,
     title: "Consulta Médica",
     date: new Date(),
-    meetingUrl: "",
+    meetingUrl: "https://zoom.us/j/12345",
+    url: "https://zoom.us/j/12345", // Prop adicionada para satisfazer o TS
     createdAt: new Date(),
     updatedAt: new Date(),
     isDeleted: false,
   };
 
   it("deve exibir o título da reunião", () => {
-    const { getByText } = render(
+    render(
       <MeetingBlockUI
         block={mockMeeting}
         onEdit={jest.fn()}
         onDelete={jest.fn()}
       />,
     );
-    expect(getByText("Consulta Médica")).toBeTruthy();
+    expect(screen.getByText("Consulta Médica")).toBeTruthy();
   });
 });

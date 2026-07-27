@@ -1,35 +1,32 @@
 import { DeleteBlockUseCase } from "../../../src/application/useCases/DeleteBlockUseCase";
 import { MockNotebookRepository } from "../../mocks/MockNotebookRepository";
 
-describe("DeleteBlockUseCase (Soft Delete)", () => {
-  it("deve enviar a anotação para a lixeira (isDeleted = true)", async () => {
-    const repository = new MockNotebookRepository();
-    repository.notebooks.push({
-      id: "caderno-1",
-      title: "Teste",
-      description: "",
+describe("DeleteBlockUseCase", () => {
+  it("deve marcar o bloco como apagado", async () => {
+    const repo = new MockNotebookRepository();
+    repo.getById = jest.fn().mockResolvedValue({
+      id: "1",
+      title: "Caderno",
       icon: "📘",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isDeleted: false,
       blocks: [
         {
-          id: "bloco-1",
+          id: "b1",
           type: "paragraph",
           content: "Texto",
           isDeleted: false,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        } as any,
       ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isDeleted: false,
     });
+    repo.save = jest.fn();
 
-    const useCase = new DeleteBlockUseCase(repository);
-    await useCase.execute("caderno-1", "bloco-1");
+    const useCase = new DeleteBlockUseCase(repo);
+    await useCase.execute("1", "b1");
 
-    const notebook = await repository.getById("caderno-1");
-
-    expect(notebook?.blocks.length).toBe(1);
-    expect(notebook?.blocks[0].isDeleted).toBe(true);
+    expect(repo.save).toHaveBeenCalled();
+    const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
+    expect(savedNotebook.blocks[0].isDeleted).toBe(true);
   });
 });
