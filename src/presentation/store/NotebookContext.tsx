@@ -183,7 +183,7 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
 
   const reorderBlocks = async (notebookId: string, newOrderIds: string[]) => {
     await reorderBlocksUseCase.execute(notebookId, newOrderIds);
-    await loadNotebooks(); // Recarrega a lista para mostrar a nova ordem
+    await loadNotebooks();
   };
 
   const toggleTask = async (notebookId: string, taskId: string) => {
@@ -199,7 +199,7 @@ export const NotebookProvider = ({ children }: { children: ReactNode }) => {
         loadNotebooks,
         createNotebook,
         updateNotebook,
-        deleteNotebook, // <-- Adicionado aqui
+        deleteNotebook,
         restoreNotebook,
         hardDeleteNotebook,
         addBlock,

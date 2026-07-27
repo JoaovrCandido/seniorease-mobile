@@ -1,10 +1,9 @@
-// src/presentation/store/ToastContext.tsx
 import {
-    createContext,
-    ReactNode,
-    useCallback,
-    useContext,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState,
 } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -29,7 +28,6 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     const id = Math.random().toString(36).substring(2, 9);
     setToast({ id, message, type });
 
-    // O aviso some automaticamente após 3 segundos
     setTimeout(() => {
       setToast((current) => (current?.id === id ? null : current));
     }, 3000);
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 9999, // Garante que fica por cima de modais e listas
+    zIndex: 9999,
   },
   success: { backgroundColor: "#137333" },
   error: { backgroundColor: "#D93025" },

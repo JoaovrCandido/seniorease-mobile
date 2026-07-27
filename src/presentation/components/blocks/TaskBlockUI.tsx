@@ -1,8 +1,6 @@
-// src/presentation/components/blocks/TaskBlockUI.tsx
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 
-// Tipagem baseada na entidade do domínio (sem uso de 'any')
 export interface TaskBlockData {
   id: string;
   type: "task";
@@ -61,7 +59,6 @@ export const TaskBlockUI = ({
       ]}
     >
       <View style={styles.row}>
-        {/* Checkbox Acessível */}
         <TouchableOpacity
           style={[
             styles.checkbox,
@@ -94,7 +91,6 @@ export const TaskBlockUI = ({
           )}
         </TouchableOpacity>
 
-        {/* Conteúdo */}
         <View style={styles.content}>
           <Text
             style={[
@@ -111,7 +107,6 @@ export const TaskBlockUI = ({
         </View>
       </View>
 
-      {/* Botões de Ação */}
       <View
         style={[
           styles.actions,

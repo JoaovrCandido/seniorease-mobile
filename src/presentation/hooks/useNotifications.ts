@@ -4,7 +4,6 @@ import { useCallback } from "react";
 export const useNotifications = () => {
   const scheduleNotification = useCallback(
     async (title: string, body: string, date: Date): Promise<string> => {
-      // Ajuste para satisfazer estritamente o TypeScript do Expo
       const trigger =
         date.getTime() > Date.now()
           ? ({

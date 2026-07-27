@@ -1,4 +1,3 @@
-// src/app/index.tsx
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -22,7 +21,6 @@ export default function HomeScreen() {
 
   const [isOnboardingVisible, setIsOnboardingVisible] =
     useState<boolean>(false);
-  // Mantemos o estado da paleta de comandos (pesquisa) se ainda a usar
   const [isCommandPaletteVisible, setIsCommandPaletteVisible] =
     useState<boolean>(false);
 
@@ -72,7 +70,6 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
-      {/* CABEÇALHO LIMPO (Apenas Ajuda, Pesquisa e Perfil) */}
       <View
         style={[
           styles.header,
@@ -124,7 +121,6 @@ export default function HomeScreen() {
         steps={homeSteps}
       />
 
-      {/* BOTÕES COM TEXTO CLARO (Histórico e Lixeira) */}
       <View
         style={{
           flexDirection: "row",
@@ -146,7 +142,6 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* LISTA DE CADERNOS */}
       <FlatList
         data={visibleNotebooks}
         keyExtractor={(item) => item.id}

@@ -1,4 +1,3 @@
-// src/presentation/hooks/useNotebook.ts
 import { BlockType, useNotebooks } from "../store/NotebookContext";
 
 interface ExtraBlockData {

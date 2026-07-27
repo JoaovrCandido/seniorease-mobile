@@ -31,7 +31,7 @@ export const HeadingBlockUI = ({
   const isHighContrast = settings.highContrast;
   const theme = {
     cardBg: isHighContrast ? "#121212" : "transparent",
-    textMain: isHighContrast ? "#FFD700" : "#0056D2", // Títulos têm a cor primária
+    textMain: isHighContrast ? "#FFD700" : "#0056D2",
     danger: isHighContrast ? "#FF6B6B" : "#D93025",
     border: isHighContrast ? "#333333" : "#E0E0E0",
   };

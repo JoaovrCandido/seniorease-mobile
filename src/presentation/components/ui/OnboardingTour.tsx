@@ -1,4 +1,3 @@
-// src/presentation/components/ui/OnboardingTour.tsx
 import { useEffect, useState } from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
@@ -92,7 +91,6 @@ export const OnboardingTour = ({
             {step.text}
           </Text>
 
-          {/* LAYOUT CORRIGIDO: Texto em cima, botões em baixo dividindo o espaço */}
           <View style={styles.footer}>
             <Text
               style={{

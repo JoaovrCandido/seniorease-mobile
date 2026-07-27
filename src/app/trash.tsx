@@ -1,4 +1,3 @@
-// src/app/trash.tsx
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -17,14 +16,13 @@ import { useNotebooks } from "../presentation/store/NotebookContext";
 import { useToast } from "../presentation/store/ToastContext";
 import { useUserProfile } from "../presentation/store/UserProfileContext";
 
-// Tipo unificado para misturarmos cadernos e anotações na mesma lista
 type TrashItem = {
   id: string;
   type: "notebook" | "block";
   icon: string;
   title: string;
   subtitle: string;
-  notebookId?: string; // Usado apenas quando for um bloco
+  notebookId?: string;
 };
 
 const getSafeText = (rawContent: any): string => {
@@ -81,7 +79,6 @@ export default function TrashScreen() {
     danger: isHighContrast ? "#FF6B6B" : "#D93025",
   };
 
-  // Junta todos os cadernos apagados E as anotações apagadas (apenas de cadernos ativos)
   const trashItems: TrashItem[] = [
     ...notebooks
       .filter((n) => n.isDeleted)
@@ -116,7 +113,6 @@ export default function TrashScreen() {
         await restoreBlock(item.notebookId!, item.id);
       }
 
-      // NOVO: Mensagem de incentivo ao restaurar da lixeira
       const msg = settings.encouragement
         ? PraiseService.getRandomPraise("restore", profile.preferredName)
         : "Restaurado com sucesso!";

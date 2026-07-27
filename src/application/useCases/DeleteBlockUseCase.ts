@@ -8,7 +8,7 @@ export class DeleteBlockUseCase {
     if (notebook) {
       const block = notebook.blocks.find((b) => b.id === blockId);
       if (block) {
-        block.isDeleted = true; // Vai para a lixeira
+        block.isDeleted = true;
         notebook.updatedAt = new Date();
         await this.notebookRepository.save(notebook);
       }

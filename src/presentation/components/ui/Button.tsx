@@ -1,10 +1,9 @@
-// src/presentation/components/ui/Button.tsx
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableOpacityProps,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableOpacityProps,
 } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 
@@ -23,7 +22,6 @@ export const Button = ({
 }: ButtonProps) => {
   const { settings } = useAccessibility();
 
-  // Multiplicadores de acessibilidade
   const fScale =
     settings.fontSize === "extra-large"
       ? 1.4
@@ -32,21 +30,20 @@ export const Button = ({
         : 1;
   const isHighContrast = settings.highContrast;
 
-  // Lógica de temas exata da versão Web
   const getVariantStyles = () => {
     if (isHighContrast) {
       if (variant === "primary")
         return { bg: "#FFD700", text: "#000000", border: "#FFD700" };
       if (variant === "danger")
         return { bg: "#FF6B6B", text: "#000000", border: "#FF6B6B" };
-      return { bg: "#1E1E1E", text: "#FFFFFF", border: "#FFD700" }; // secondary
+      return { bg: "#1E1E1E", text: "#FFFFFF", border: "#FFD700" };
     }
 
     if (variant === "primary")
       return { bg: "#0056D2", text: "#FFFFFF", border: "#0056D2" };
     if (variant === "danger")
       return { bg: "#D93025", text: "#FFFFFF", border: "#D93025" };
-    return { bg: "#E8F0FE", text: "#0056D2", border: "#0056D2" }; // secondary
+    return { bg: "#E8F0FE", text: "#0056D2", border: "#0056D2" };
   };
 
   const colors = getVariantStyles();

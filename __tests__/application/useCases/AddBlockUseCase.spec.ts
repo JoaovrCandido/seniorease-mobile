@@ -21,7 +21,6 @@ describe("AddBlockUseCase", () => {
     expect(repo.save).toHaveBeenCalled();
     const savedNotebook = (repo.save as jest.Mock).mock.calls[0][0];
 
-    // Forçamos o TypeScript a ler o content para o teste
     expect((savedNotebook.blocks[0] as any).content).toBe("Comprar pão");
   });
 });

@@ -6,7 +6,7 @@ export class DeleteNotebookUseCase {
   async execute(id: string): Promise<void> {
     const notebook = await this.notebookRepository.getById(id);
     if (notebook) {
-      notebook.isDeleted = true; // Marca como apagado (vai para a lixeira)
+      notebook.isDeleted = true;
       notebook.updatedAt = new Date();
       await this.notebookRepository.save(notebook);
     }

@@ -1,10 +1,9 @@
 import { act, render } from "@testing-library/react-native";
 import {
-    NotebookProvider,
-    useNotebooks,
+  NotebookProvider,
+  useNotebooks,
 } from "../../../src/presentation/store/NotebookContext";
 
-// Evita que o contexto tente ler dados reais durante o teste
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn().mockResolvedValue(JSON.stringify([])),
   setItem: jest.fn(),
@@ -29,8 +28,6 @@ describe("NotebookContext", () => {
       </NotebookProvider>,
     );
 
-    // Se o seu contexto carregar os cadernos automaticamente no useEffect,
-    // garantimos que a promessa resolve usando act
     await act(async () => {
       if (hookResult.loadNotebooks) {
         await hookResult.loadNotebooks();

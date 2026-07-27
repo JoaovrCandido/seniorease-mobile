@@ -1,11 +1,10 @@
-// src/presentation/components/blocks/MeetingBlockUI.tsx
 import {
-    Alert,
-    Linking,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 import { Button } from "../ui/Button";
@@ -100,7 +99,6 @@ export const MeetingBlockUI = ({
         {block.title}
       </Text>
 
-      {/* Utilizando o nosso Button genérico recém-criado */}
       <Button
         title="Entrar na Reunião"
         onPress={handleOpenLink}

@@ -1,7 +1,9 @@
-// src/domain/entities/Block.ts
-
 export type BlockType =
-  "heading" | "paragraph" | "task" | "meeting" | "reminder";
+  | "heading"
+  | "paragraph"
+  | "task"
+  | "meeting"
+  | "reminder";
 
 export interface BaseBlock {
   id: string;
@@ -29,14 +31,18 @@ export interface MeetingBlock extends BaseBlock {
   type: "meeting";
   title: string;
   meetingUrl: string;
-  date: string; // <-- NOVO CAMPO: Precisamos saber quando é a reunião!
+  date: string;
 }
 
 export interface ReminderBlock extends BaseBlock {
   type: "reminder";
-  content: string; // <-- NOVO CAMPO DE TEXTO
+  content: string;
   date: string;
 }
 
 export type ContentBlock =
-  HeadingBlock | ParagraphBlock | TaskBlock | MeetingBlock | ReminderBlock;
+  | HeadingBlock
+  | ParagraphBlock
+  | TaskBlock
+  | MeetingBlock
+  | ReminderBlock;

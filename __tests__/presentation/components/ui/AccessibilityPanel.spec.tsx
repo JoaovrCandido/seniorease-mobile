@@ -17,8 +17,6 @@ describe("AccessibilityPanel", () => {
 
     try {
       fireEvent.press(screen.getByText("A++"));
-    } catch (e) {
-      // Ignora se o botão tiver outro nome
-    }
+    } catch (e) {}
   });
 });

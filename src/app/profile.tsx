@@ -1,4 +1,3 @@
-// src/app/profile.tsx
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -52,7 +51,6 @@ export default function ProfileScreen() {
     Linking.openURL(`tel:${profile.emergencyContact}`);
   };
 
-  // Extrai o primeiro nome para uma saudação mais próxima
   const firstName = profile.preferredName
     ? profile.preferredName.trim().split(" ")[0]
     : "";
@@ -129,10 +127,8 @@ export default function ProfileScreen() {
       />
 
       <ScrollView contentContainerStyle={{ padding: 20 * sScale }}>
-        {/* Painel de Acessibilidade Renderizado Limpamente */}
         <AccessibilityPanel />
 
-        {/* Dados Pessoais e SOS */}
         <View
           style={[
             styles.card,

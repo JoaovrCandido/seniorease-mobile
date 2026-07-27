@@ -37,9 +37,7 @@ export const useDictation = (onTextRecognized: (text: string) => void) => {
             .then(() => Voice.removeAllListeners())
             .catch(() => {});
         }
-      } catch (err: unknown) {
-        // Ignora erros de limpeza de listener nativo
-      }
+      } catch (err: unknown) {}
     };
   }, [onTextRecognized]);
 

@@ -1,4 +1,3 @@
-// src/app/_layout.tsx
 import { ToastProvider } from "@/presentation/store/ToastContext";
 import { Stack } from "expo-router";
 import { AccessibilityProvider } from "../presentation/store/AccessibilityContext";

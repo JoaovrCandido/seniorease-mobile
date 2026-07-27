@@ -26,9 +26,7 @@ describe("OnboardingTour", () => {
     } catch {
       try {
         fireEvent.press(screen.getByText("Concluir"));
-      } catch {
-        // Ignora se o texto for diferente para não quebrar o teste
-      }
+      } catch {}
     }
   });
 });

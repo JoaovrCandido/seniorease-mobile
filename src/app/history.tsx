@@ -1,4 +1,3 @@
-// src/app/history.tsx
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -38,7 +37,6 @@ export default function HistoryScreen() {
     primary: isHighContrast ? "#FFD700" : "#0056D2",
   };
 
-  // Filtra cadernos ativos e ordena pelos modificados mais recentemente
   const sortedNotebooks = [...notebooks]
     .filter((n) => !n.isDeleted)
     .sort(

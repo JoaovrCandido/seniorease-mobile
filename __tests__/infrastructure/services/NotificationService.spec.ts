@@ -17,7 +17,6 @@ describe("NotificationService", () => {
       "Tomar o comprimido da pressão.",
     );
 
-    // CORREÇÃO: Alinhado exatamente com as propriedades que o seu código envia
     expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledWith({
       content: {
         title: "Hora do Remédio",

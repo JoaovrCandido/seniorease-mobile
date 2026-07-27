@@ -4,7 +4,7 @@ import { useAccessibility } from "../../store/AccessibilityContext";
 export interface ParagraphBlockData {
   id: string;
   type: "paragraph";
-  content: unknown; // Mantemos unknown para forçar a verificação de tipo segura
+  content: unknown;
   updatedAt?: string | Date;
 }
 
@@ -39,7 +39,6 @@ export const ParagraphBlockUI = ({
     border: isHighContrast ? "#333333" : "#E0E0E0",
   };
 
-  // Type Guard seguro para extrair o texto
   const getSafeText = (rawContent: unknown): string => {
     if (typeof rawContent === "string") return rawContent;
     if (rawContent && typeof rawContent === "object") {
@@ -60,7 +59,6 @@ export const ParagraphBlockUI = ({
         },
       ]}
     >
-      {/* MODO AVANÇADO: Mostra o ID e metadados no topo do bloco */}
       {settings.advancedMode && block.updatedAt && (
         <View
           style={{

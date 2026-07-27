@@ -47,7 +47,6 @@ describe("AsyncStorageNotebookRepository", () => {
   });
 
   it("deve apagar fisicamente um caderno pela sua ID", async () => {
-    // CORREÇÃO: Adicionada a propriedade 'blocks: []' para evitar o erro do .map
     const mockData = [
       { id: "caderno-1", title: "Saúde", blocks: [] },
       { id: "caderno-2", title: "Compras", blocks: [] },

@@ -12,7 +12,6 @@ export class AsyncStorageNotebookRepository implements INotebookRepository {
 
       const parsedData = JSON.parse(data);
 
-      // O JSON não guarda objetos Date nativos, precisamos de os reconstruir
       return parsedData.map((notebook: any) => ({
         ...notebook,
         createdAt: new Date(notebook.createdAt),

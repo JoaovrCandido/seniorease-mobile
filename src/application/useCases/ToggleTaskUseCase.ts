@@ -1,4 +1,3 @@
-// src/application/useCases/ToggleTaskUseCase.ts
 import { INotebookRepository } from "../../domain/repositories/INotebookRepository";
 
 export class ToggleTaskUseCase {
@@ -23,7 +22,6 @@ export class ToggleTaskUseCase {
       throw new Error('Apenas blocos do tipo "task" podem ser alternados.');
     }
 
-    // Inverte o estado atual da tarefa
     block.isCompleted = !block.isCompleted;
     notebook.updatedAt = new Date();
 

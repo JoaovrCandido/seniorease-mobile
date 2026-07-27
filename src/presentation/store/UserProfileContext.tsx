@@ -1,11 +1,10 @@
-// src/presentation/store/UserProfileContext.tsx
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 const PROFILE_STORAGE_KEY = "@SeniorEase:profile";

@@ -1,7 +1,6 @@
-// src/domain/entities/Notebook.ts
 import { ContentBlock } from "./Block";
 
-export type NotebookType = "notebook" | "todo"; // <-- NOVO
+export type NotebookType = "notebook" | "todo";
 
 export interface Notebook {
   id: string;
@@ -10,7 +9,7 @@ export interface Notebook {
   description?: string;
   blocks: ContentBlock[];
   isDeleted?: boolean;
-  type?: NotebookType; // <-- NOVO: Guarda o tipo do arquivo
+  type?: NotebookType;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -37,7 +37,7 @@ export const DictationButton = ({
           {
             backgroundColor: isListening ? theme.bgActive : theme.bgIdle,
             borderColor: isListening ? theme.borderActive : theme.borderIdle,
-            transform: [{ scale: isListening ? 1.1 : 1 }], // Feedback visual tátil
+            transform: [{ scale: isListening ? 1.1 : 1 }],
           },
         ]}
         onPress={isListening ? onStop : onStart}

@@ -1,17 +1,15 @@
-// src/presentation/store/SettingsContext.tsx
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 const SETTINGS_STORAGE_KEY = "@SeniorEase:settings";
 const PROFILE_STORAGE_KEY = "@SeniorEase:profile";
 
-// 1. Tipagem rigorosa para evitar o 'any'
 export interface UserProfile {
   preferredName: string;
   age: string;
@@ -38,7 +36,6 @@ interface SettingsContextData {
   isLoadingSettings: boolean;
 }
 
-// 2. Valores por defeito (focados no público sénior)
 const defaultProfile: UserProfile = {
   preferredName: "",
   age: "",
@@ -51,8 +48,8 @@ const defaultSettings: AccessibilitySettings = {
   highContrast: false,
   spacing: "comfortable",
   reduceMotion: true,
-  clickSecurity: true, // Proteção contra cliques duplos/acidentais
-  enableCompliments: true, // Elogios motivacionais ativados
+  clickSecurity: true,
+  enableCompliments: true,
 };
 
 const SettingsContext = createContext<SettingsContextData>(

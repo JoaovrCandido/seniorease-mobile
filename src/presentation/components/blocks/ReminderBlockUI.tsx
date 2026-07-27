@@ -1,4 +1,3 @@
-// src/presentation/components/blocks/ReminderBlockUI.tsx
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 
@@ -32,10 +31,10 @@ export const ReminderBlockUI = ({
 
   const isHighContrast = settings.highContrast;
   const theme = {
-    cardBg: isHighContrast ? "#1E1E1E" : "#FFF9E6", // Fundo levemente amarelo/destaque
+    cardBg: isHighContrast ? "#1E1E1E" : "#FFF9E6",
     textMain: isHighContrast ? "#FFFFFF" : "#1A1A1A",
     textSub: isHighContrast ? "#BBBBBB" : "#666666",
-    primary: isHighContrast ? "#FFD700" : "#E6A23C", // Cor de alerta/lembrete
+    primary: isHighContrast ? "#FFD700" : "#E6A23C",
     danger: isHighContrast ? "#FF6B6B" : "#D93025",
     border: isHighContrast ? "#333333" : "#F3D19E",
   };

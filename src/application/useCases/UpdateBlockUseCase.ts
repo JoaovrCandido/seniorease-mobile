@@ -16,13 +16,11 @@ export class UpdateBlockUseCase {
       const blockIndex = notebook.blocks.findIndex((b) => b.id === blockId);
 
       if (blockIndex !== -1) {
-        // Utilizamos um 'double cast' para evitar erros de sobreposição de tipos do TypeScript
         const blockAsRecord = notebook.blocks[blockIndex] as unknown as Record<
           string,
           unknown
         >;
 
-        // Tratamento seguro: Reuniões utilizam 'title', os restantes blocos utilizam 'content'
         if (newType === "meeting") {
           blockAsRecord.title = newContent;
         } else {
@@ -35,8 +33,8 @@ export class UpdateBlockUseCase {
           blockAsRecord.date = extra.date;
         }
         if (extra?.url) {
-          blockAsRecord.meetingUrl = extra.url; // Propriedade correta para a reunião
-          blockAsRecord.url = extra.url; // Fallback
+          blockAsRecord.meetingUrl = extra.url;
+          blockAsRecord.url = extra.url;
         }
 
         notebook.updatedAt = new Date();

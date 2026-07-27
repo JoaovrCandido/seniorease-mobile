@@ -8,7 +8,7 @@ export class RestoreBlockUseCase {
     if (notebook) {
       const block = notebook.blocks.find((b) => b.id === blockId);
       if (block) {
-        block.isDeleted = false; // Tira da lixeira
+        block.isDeleted = false;
         notebook.updatedAt = new Date();
         await this.notebookRepository.save(notebook);
       }

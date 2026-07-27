@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   createContext,
   ReactNode,
@@ -5,8 +6,6 @@ import {
   useEffect,
   useState,
 } from "react";
-// Caso já tenha o AsyncStorage configurado para as preferências, vamos preparar a estrutura
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface AccessibilitySettings {
   userName: string;
@@ -16,7 +15,7 @@ export interface AccessibilitySettings {
   reduceMotion: boolean;
   clickProtection: boolean;
   encouragement: boolean;
-  advancedMode: boolean; // <-- NOVO: Modo Avançado
+  advancedMode: boolean;
 }
 
 interface AccessibilityContextData {
@@ -51,7 +50,6 @@ export const AccessibilityProvider = ({
     useState<AccessibilitySettings>(defaultSettings);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
-  // Carrega as preferências guardadas assim que a app abre
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -68,13 +66,11 @@ export const AccessibilityProvider = ({
     loadSettings();
   }, []);
 
-  // Atualiza o estado e guarda fisicamente no dispositivo
   const updateSettings = async (
     newSettings: Partial<AccessibilitySettings>,
   ) => {
     let updated = { ...settings, ...newSettings };
 
-    // Se o utilizador alternou o Modo Avançado, ajustamos a fonte por default
     if (
       "advancedMode" in newSettings &&
       newSettings.advancedMode !== settings.advancedMode

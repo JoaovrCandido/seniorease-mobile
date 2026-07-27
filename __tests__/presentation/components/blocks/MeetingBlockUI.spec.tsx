@@ -15,7 +15,7 @@ describe("MeetingBlockUI", () => {
     title: "Consulta Médica",
     date: new Date(),
     meetingUrl: "https://zoom.us/j/12345",
-    url: "https://zoom.us/j/12345", // Prop adicionada para satisfazer o TS
+    url: "https://zoom.us/j/12345",
     createdAt: new Date(),
     updatedAt: new Date(),
     isDeleted: false,

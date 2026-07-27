@@ -257,7 +257,6 @@ export default function NotebookScreen() {
       );
     };
 
-    // A conversão 'as unknown as ...' resolve o erro TS2352 garantindo compatibilidade das Props
     const BlockContent = () => {
       switch (block.type) {
         case "task":

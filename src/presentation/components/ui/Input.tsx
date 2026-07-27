@@ -1,10 +1,9 @@
-// src/presentation/components/ui/Input.tsx
 import {
-    StyleSheet,
-    Text,
-    TextInput,
-    TextInputProps,
-    View,
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
 } from "react-native";
 import { useAccessibility } from "../../store/AccessibilityContext";
 

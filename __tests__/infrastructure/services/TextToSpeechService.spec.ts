@@ -22,7 +22,7 @@ describe("TextToSpeechService", () => {
     expect(Speech.speak).toHaveBeenCalledWith(
       texto,
       expect.objectContaining({
-        language: "pt-BR", // Ajustado para corresponder ao seu código
+        language: "pt-BR",
         rate: expect.any(Number),
         pitch: expect.any(Number),
       }),
