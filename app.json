@@ -21,7 +21,10 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "backgroundColor": "#0056D2"
       },
-      "package": "com.seunome.seniorease"
+      "package": "com.seunome.seniorease",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -36,6 +39,12 @@
           "speechRecognitionPermission": "O SeniorEase precisa do reconhecimento de voz para transformar a sua fala em texto."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f172261d-866c-4eba-a810-9bc9c14b0fc8"
+      }
+    }
   }
 }

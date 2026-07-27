@@ -1,35 +1,41 @@
-// src/application/useCases/UpdateBlockUseCase.ts
 import { INotebookRepository } from "../../domain/repositories/INotebookRepository";
-import { ContentBlock } from "../../domain/entities/Block";
 
 export class UpdateBlockUseCase {
-  constructor(private readonly notebookRepository: INotebookRepository) {}
+  constructor(private notebookRepository: INotebookRepository) {}
 
   async execute(
     notebookId: string,
     blockId: string,
-    updatedData: Partial<ContentBlock>,
+    newContent: unknown,
+    newType: string,
+    extra?: { date?: Date; url?: string },
   ): Promise<void> {
     const notebook = await this.notebookRepository.getById(notebookId);
 
-    if (!notebook) {
-      throw new Error("Caderno não encontrado.");
+    if (notebook) {
+      const blockIndex = notebook.blocks.findIndex((b) => b.id === blockId);
+
+      if (blockIndex !== -1) {
+        // Atualiza as propriedades base
+        notebook.blocks[blockIndex].content = newContent;
+        notebook.blocks[blockIndex].type = newType;
+
+        // Atualiza as propriedades extra de forma segura (Type Assertion)
+        const blockAsRecord = notebook.blocks[blockIndex] as Record<
+          string,
+          unknown
+        >;
+
+        if (extra?.date) {
+          blockAsRecord.date = extra.date;
+        }
+        if (extra?.url) {
+          blockAsRecord.url = extra.url;
+        }
+
+        notebook.updatedAt = new Date();
+        await this.notebookRepository.save(notebook);
+      }
     }
-
-    const blockIndex = notebook.blocks.findIndex((b) => b.id === blockId);
-
-    if (blockIndex === -1) {
-      throw new Error("Bloco não encontrado no caderno.");
-    }
-
-    // Faz a fusão (merge) dos dados antigos do bloco com os novos dados digitados
-    notebook.blocks[blockIndex] = {
-      ...notebook.blocks[blockIndex],
-      ...updatedData,
-    } as ContentBlock;
-
-    notebook.updatedAt = new Date();
-
-    await this.notebookRepository.save(notebook);
   }
 }
