@@ -30,9 +30,6 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
-      - name: Aplicar Patches
-        run: npx patch-package
-
       - name: Build Android (Preview)
         # Ajuste "--profile preview" para "--profile production" quando for enviar para a loja
         run: eas build --platform android --profile preview --non-interactive

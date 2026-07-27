@@ -24,7 +24,6 @@ import { Button } from "../../presentation/components/ui/Button";
 import { EmojiPicker } from "../../presentation/components/ui/EmojiPicker";
 import { Input } from "../../presentation/components/ui/Input";
 import { OnboardingTour } from "../../presentation/components/ui/OnboardingTour";
-import { useDictation } from "../../presentation/hooks/useDictation";
 import { useAccessibility } from "../../presentation/store/AccessibilityContext";
 import {
   BlockType,
@@ -87,20 +86,11 @@ export default function NotebookScreen() {
     border: isHighContrast ? "#333333" : "#E0E0E0",
   };
 
-  const { isListening, startDictation, stopDictation } = useDictation(
-    (recognizedText) => {
-      setNewContent((prev) =>
-        prev ? `${prev} ${recognizedText}` : recognizedText,
-      );
-    },
-  );
-
   useEffect(() => {
     return () => {
       ttsService.cancel();
-      stopDictation();
     };
-  }, [stopDictation]);
+  }, []);
 
   if (!notebook) return null;
 
@@ -408,7 +398,7 @@ export default function NotebookScreen() {
     },
     {
       title: "Adicionar Anotações",
-      text: "Toque no botão '+ Escrever' em baixo. Pode até usar a voz para ditar o texto (🎙️)!",
+      text: "Toque no botão '+ Escrever' em baixo para adicionar texto ou tarefas.",
     },
     {
       title: "Configurações do Caderno",
@@ -568,53 +558,28 @@ export default function NotebookScreen() {
                 );
               })}
             </ScrollView>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "flex-start",
-                marginBottom: 20 * sScale,
-              }}
-            >
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    flex: 1,
-                    backgroundColor: theme.bg,
-                    color: theme.textMain,
-                    borderColor: theme.border,
-                    fontSize: 18 * fScale,
-                    padding: 16 * sScale,
-                    height: 150,
-                    textAlignVertical: "top",
-                  },
-                ]}
-                placeholder={
-                  isListening ? "A escutar..." : "O que deseja anotar?"
-                }
-                value={newContent}
-                onChangeText={setNewContent}
-                placeholderTextColor={theme.textSub}
-                multiline
-              />
-              <TouchableOpacity
-                style={{
-                  marginLeft: 12,
-                  padding: 20 * sScale,
-                  borderRadius: 30,
-                  backgroundColor: isListening ? "#FCE8E6" : theme.bg,
-                  borderWidth: 2,
-                  borderColor: isListening ? "#D93025" : theme.primary,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                onPress={isListening ? stopDictation : startDictation}
-              >
-                <Text style={{ fontSize: 32 * fScale }}>
-                  {isListening ? "🛑" : "🎙️"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.bg,
+                  color: theme.textMain,
+                  borderColor: theme.border,
+                  fontSize: 18 * fScale,
+                  padding: 16 * sScale,
+                  height: 150,
+                  textAlignVertical: "top",
+                  marginBottom: 20 * sScale,
+                },
+              ]}
+              placeholder="O que deseja anotar?"
+              value={newContent}
+              onChangeText={setNewContent}
+              placeholderTextColor={theme.textSub}
+              multiline
+            />
+
             {(blockType === "reminder" || blockType === "meeting") && (
               <TextInput
                 style={[

@@ -2,12 +2,17 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { Button } from "../presentation/components/ui/Button";
+import { EmojiPicker } from "../presentation/components/ui/EmojiPicker";
+import { Input } from "../presentation/components/ui/Input";
 import { OnboardingTour } from "../presentation/components/ui/OnboardingTour";
 import { useAccessibility } from "../presentation/store/AccessibilityContext";
 import { useNotebooks } from "../presentation/store/NotebookContext";
@@ -15,7 +20,7 @@ import { useUserProfile } from "../presentation/store/UserProfileContext";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { notebooks, loadNotebooks } = useNotebooks();
+  const { notebooks, loadNotebooks, createNotebook } = useNotebooks();
   const { settings } = useAccessibility();
   const { profile } = useUserProfile();
 
@@ -23,6 +28,12 @@ export default function HomeScreen() {
     useState<boolean>(false);
   const [isCommandPaletteVisible, setIsCommandPaletteVisible] =
     useState<boolean>(false);
+
+  // NOVOS ESTADOS PARA O MODAL DE CRIAÇÃO
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [newNotebookTitle, setNewNotebookTitle] = useState("");
+  const [newNotebookDesc, setNewNotebookDesc] = useState("");
+  const [newNotebookIcon, setNewNotebookIcon] = useState("📘");
 
   useEffect(() => {
     loadNotebooks();
@@ -67,6 +78,21 @@ export default function HomeScreen() {
   ];
 
   const visibleNotebooks = notebooks.filter((n) => !n.isDeleted);
+
+  // FUNÇÃO PARA GUARDAR O NOVO CADERNO
+  const handleCreateNotebook = async () => {
+    if (!newNotebookTitle.trim()) {
+      alert("Por favor, digite um nome para o caderno.");
+      return;
+    }
+
+    await createNotebook(newNotebookTitle, newNotebookDesc, newNotebookIcon);
+
+    setNewNotebookTitle("");
+    setNewNotebookDesc("");
+    setNewNotebookIcon("📘");
+    setIsCreateModalVisible(false);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
@@ -183,10 +209,85 @@ export default function HomeScreen() {
       <View style={styles.fabContainer}>
         <Button
           title="+ Novo Caderno"
-          onPress={() => router.push("/notebook/create")}
+          onPress={() => setIsCreateModalVisible(true)}
           style={{ paddingHorizontal: 32 * sScale, borderRadius: 30 }}
         />
       </View>
+
+      {/* MODAL DE CRIAÇÃO AQUI NO FINAL */}
+      <Modal
+        visible={isCreateModalVisible}
+        animationType={settings.reduceMotion ? "none" : "slide"}
+        transparent={true}
+        onRequestClose={() => setIsCreateModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            justifyContent: "flex-end",
+          }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View
+            style={{
+              backgroundColor: theme.card,
+              padding: 24 * sScale,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 24 * fScale,
+                fontWeight: "bold",
+                color: theme.textMain,
+                marginBottom: 20 * sScale,
+                textAlign: "center",
+              }}
+            >
+              Novo Caderno
+            </Text>
+
+            <EmojiPicker
+              selectedEmoji={newNotebookIcon}
+              onSelect={setNewNotebookIcon}
+            />
+
+            <Input
+              label="Nome do Caderno"
+              value={newNotebookTitle}
+              onChangeText={setNewNotebookTitle}
+            />
+
+            <Input
+              label="Descrição (Opcional)"
+              value={newNotebookDesc}
+              onChangeText={setNewNotebookDesc}
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 16 * sScale,
+              }}
+            >
+              <Button
+                title="Cancelar"
+                variant="secondary"
+                onPress={() => setIsCreateModalVisible(false)}
+                style={{ flex: 1, marginRight: 12 }}
+              />
+              <Button
+                title="Criar"
+                onPress={handleCreateNotebook}
+                style={{ flex: 1 }}
+              />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }

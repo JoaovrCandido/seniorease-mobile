@@ -21,25 +21,12 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "backgroundColor": "#0056D2"
       },
-      "package": "com.seunome.seniorease",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "package": "com.seunome.seniorease"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font",
-      [
-        "@react-native-voice/voice",
-        {
-          "microphonePermission": "O SeniorEase precisa do microfone para que possa ditar as suas anotações em vez de escrever.",
-          "speechRecognitionPermission": "O SeniorEase precisa do reconhecimento de voz para transformar a sua fala em texto."
-        }
-      ]
-    ],
+    "plugins": ["expo-router", "expo-font"],
     "extra": {
       "router": {},
       "eas": {
